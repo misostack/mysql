@@ -1,0 +1,7 @@
+login,password,email,first_name,last_name,type,status,created_at,updated_at,gender,is_super_admin
+sadmin,123,sadmin@yopmail.com,Faker,Mid,admin,active,2021-10-28 14:36:00,2021-10-28 14:36:00,M,1
+admin1,123,admin1@yopmail.com,BDD,Mid,admin,active,2021-10-29 14:36:00,2021-10-29 14:36:00,F,0
+user1,123,user1@yopmail.com,One,Jungle,member,active,2021-10-30 14:36:00,2021-10-30 14:36:00,M,0
+user2,123,user2@yopmail.com,Gumayusi,Adc,member,active,2021-10-31 14:36:00,2021-10-31 14:36:00,M,0
+user3,123,user3@yopmail.com,Ruler,Adc,member,pending,2021-11-01 14:36:00,2021-11-01 14:36:00,F,0
+user4,123,user4@yopmail.com,Maker,Show,member,inactive,2021-11-02 14:36:00,2021-11-02 14:36:00,F,0
