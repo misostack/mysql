@@ -5,14 +5,13 @@ SET foreign_key_checks = 0;
 DROP TABLE IF EXISTS `customer_sources`;
 CREATE TABLE customer_sources(
 	id BIGINT AUTO_INCREMENT,
-    slug VARCHAR(60) NOT NULL,
     name VARCHAR(80) NOT NULL,
     description VARCHAR(255),
     PRIMARY KEY(id)
 );
 
 ALTER TABLE customer_sources
-ADD CONSTRAINT uc_slug UNIQUE(slug);
+ADD CONSTRAINT uc_name UNIQUE(name);
 
 DROP TABLE IF EXISTS `customers`;
 CREATE TABLE customers(
@@ -51,3 +50,25 @@ ON UPDATE SET NULL
 ON DELETE SET NULL;
 
 SET foreign_key_checks = 1;
+
+DROP TABLE IF EXISTS `events`;
+CREATE TABLE events(
+	id BIGINT AUTO_INCREMENT,
+    name VARCHAR(80) NOT NULL,
+    event_date DATE NOT NULL,
+    image VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    PRIMARY KEY(id)
+);
+
+DROP TABLE IF EXISTS `email_templates`;
+CREATE TABLE email_templates(
+	id BIGINT AUTO_INCREMENT,
+    name VARCHAR(80) NOT NULL,
+    template_id BIGINT NOT NULL, /* eg: 3530164 */
+    variables TINYTEXT NOT NULL, /* json stringify this content */
+    description VARCHAR(120) NOT NULL,
+    PRIMARY KEY(id)
+);
+
+
