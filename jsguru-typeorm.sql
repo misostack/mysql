@@ -2,6 +2,7 @@ USE `jsguru-typeorm`;
 /* ALLOW DROP TABLE THAT HAVE BEEN REFERENCED BY ANOTHER TABLE */
 SET foreign_key_checks = 0;
 
+
 DROP TABLE IF EXISTS `customer_sources`;
 CREATE TABLE customer_sources(
 	id BIGINT AUTO_INCREMENT,
@@ -13,14 +14,14 @@ CREATE TABLE customer_sources(
 );
 
 ALTER TABLE customer_sources
-ADD CONSTRAINT uc_name UNIQUE(name);
+ADD CONSTRAINT uq_customer_sources_name UNIQUE(name);
 
 DROP TABLE IF EXISTS `customers`;
 CREATE TABLE customers(
 	id BIGINT AUTO_INCREMENT,
     fullname VARCHAR(60) NOT NULL,
     dob DATE, /* date of birth */
-    gender ENUM('female','male','unknown'),
+    gender ENUM('female','male','unknown') NULL DEFAULT 'unknown',
     company VARCHAR(60),
     position VARCHAR(60),
     phone_number VARCHAR(20),
@@ -35,7 +36,7 @@ CREATE TABLE customers(
 );
 
 ALTER TABLE customers
-ADD CONSTRAINT customers_chk_dob
+ADD CONSTRAINT chk_customers_dob
 CHECK (
 	CASE
 		WHEN dob BETWEEN "1930-01-01" AND "2030-12-31" THEN 1
@@ -44,10 +45,10 @@ CHECK (
 );
 
 ALTER TABLE customers
-ADD CONSTRAINT uc_email UNIQUE(email);
+ADD CONSTRAINT uq_customers_email UNIQUE(email);
 
 ALTER TABLE customers
-ADD FOREIGN KEY(source_id) REFERENCES customer_sources(id)
+ADD CONSTRAINT fk_customers_customer_sources FOREIGN KEY(source_id) REFERENCES customer_sources(id)
 ON UPDATE SET NULL
 ON DELETE SET NULL;
 
@@ -94,12 +95,12 @@ CREATE TABLE email_campaigns(
 );
 
 ALTER TABLE email_campaigns
-ADD FOREIGN KEY(email_template_id) REFERENCES email_templates(id)
+ADD CONSTRAINT fk_email_campaigns_email_templates FOREIGN KEY(email_template_id) REFERENCES email_templates(id)
 ON UPDATE SET NULL
 ON DELETE SET NULL;
 
 ALTER TABLE email_campaigns
-ADD FOREIGN KEY(event_id) REFERENCES events(id)
+ADD CONSTRAINT fk_email_campaigns_events FOREIGN KEY(event_id) REFERENCES events(id)
 ON UPDATE SET NULL
 ON DELETE SET NULL;
 
@@ -114,17 +115,17 @@ CREATE TABLE email_campaign_contacts(
 );
 
 ALTER TABLE email_campaign_contacts
-ADD FOREIGN KEY(email_campaign_id) REFERENCES email_campaigns(id)
+ADD CONSTRAINT fk_email_campaign_contacts_email_campaigns FOREIGN KEY(email_campaign_id) REFERENCES email_campaigns(id)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
 ALTER TABLE email_campaign_contacts
-ADD FOREIGN KEY(customer_id) REFERENCES customers(id)
+ADD CONSTRAINT fk_email_campaign_contacts_customers  FOREIGN KEY(customer_id) REFERENCES customers(id)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
-DROP TABLE IF EXISTS `email_queue`;
-CREATE TABLE email_queue(
+DROP TABLE IF EXISTS `email_queue_jobs`;
+CREATE TABLE email_queue_jobs(
 	id BIGINT AUTO_INCREMENT,
     email_campaign_id BIGINT NOT NULL,
     email_campaign_contact_id BIGINT NOT NULL,
@@ -136,16 +137,16 @@ CREATE TABLE email_queue(
     PRIMARY KEY(id)
 );
 
-ALTER TABLE email_queue
-ADD CONSTRAINT uc_email_campaign_email_campaign_contact UNIQUE(email_campaign_id, email_campaign_contact_id);
+ALTER TABLE email_queue_jobs
+ADD CONSTRAINT uq_email_queue_jobs_email_campaign_id_email_campaign_contact_id UNIQUE(email_campaign_id, email_campaign_contact_id);
 
-ALTER TABLE email_queue
-ADD FOREIGN KEY(email_campaign_id) REFERENCES email_campaigns(id)
+ALTER TABLE email_queue_jobs
+ADD CONSTRAINT fk_email_queue_jobs_email_campaigns FOREIGN KEY(email_campaign_id) REFERENCES email_campaigns(id)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
-ALTER TABLE email_queue
-ADD FOREIGN KEY(email_campaign_contact_id) REFERENCES email_campaign_contacts(id)
+ALTER TABLE email_queue_jobs
+ADD CONSTRAINT fk_email_queue_jobs_email_campaign_contacts FOREIGN KEY(email_campaign_contact_id) REFERENCES email_campaign_contacts(id)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
