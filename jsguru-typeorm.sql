@@ -57,8 +57,8 @@ CREATE TABLE events(
 	id BIGINT AUTO_INCREMENT,
     name VARCHAR(80) NOT NULL,
     event_date DATE NOT NULL,
-    image VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
+    image VARCHAR(255) NULL,
+    description TEXT NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,        
     PRIMARY KEY(id)
@@ -69,8 +69,8 @@ CREATE TABLE email_templates(
 	id BIGINT AUTO_INCREMENT,
     name VARCHAR(80) NOT NULL,
     template_id BIGINT NOT NULL, /* eg: 3530164 */
-    variables TINYTEXT NOT NULL, /* json stringify this content */
-    description VARCHAR(120) NOT NULL,
+    variables JSON NOT NULL, /* json */
+    description VARCHAR(120) NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,        
     PRIMARY KEY(id)
@@ -79,16 +79,16 @@ CREATE TABLE email_templates(
 DROP TABLE IF EXISTS `email_campaigns`;
 CREATE TABLE email_campaigns(
 	id BIGINT AUTO_INCREMENT,
-    name VARCHAR(120) NOT NULL,
-    target TEXT,
+    name VARCHAR(80) NOT NULL,
+    target TEXT NULL,
     event_id BIGINT NULL,
     email_template_id BIGINT NULL, /* eg: 3530164 */
-    description VARCHAR(120) NOT NULL,
-    sent BIGINT NOT NULL DEFAULT 0,
-    opened BIGINT NOT NULL DEFAULT 0,
-    clicked BIGINT NOT NULL DEFAULT 0,
-    replied BIGINT NOT NULL DEFAULT 0,
-    status ENUM('pending','inprogress','pause','cancel','done') NOT NULL DEFAULT 'pending',
+    description VARCHAR(120) NULL,
+    sent BIGINT NULL DEFAULT 0,
+    opened BIGINT NULL DEFAULT 0,
+    clicked BIGINT NULL DEFAULT 0,
+    replied BIGINT NULL DEFAULT 0,
+    status ENUM('pending','inprogress','paused','cancelled','completed') NULL DEFAULT 'pending',
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,        
     PRIMARY KEY(id)
@@ -124,12 +124,15 @@ ADD CONSTRAINT fk_email_campaign_contacts_customers  FOREIGN KEY(customer_id) RE
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
+ALTER TABLE email_campaign_contacts
+ADD CONSTRAINT uq_email_campaign_contacts_email_campaign_id_customer_id UNIQUE(email_campaign_id, customer_id);
+
 DROP TABLE IF EXISTS `email_queue_jobs`;
 CREATE TABLE email_queue_jobs(
 	id BIGINT AUTO_INCREMENT,
     email_campaign_id BIGINT NOT NULL,
     email_campaign_contact_id BIGINT NOT NULL,
-    status ENUM('pending', 'locked', 'queued', 'failed', 'done') NOT NULL DEFAULT 'pending',
+    status ENUM('pending', 'queued', 'failed', 'done') NULL DEFAULT 'pending',
     mail_service_message_id BIGINT NULL DEFAULT 0,
     mail_service_message_status VARCHAR(20) NULL,
     created_at DATETIME NOT NULL,
