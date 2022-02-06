@@ -35,6 +35,8 @@ CREATE TABLE customers(
     PRIMARY KEY(id)
 );
 
+CREATE INDEX ix_customers_fullname ON customers (fullname);
+
 ALTER TABLE customers
 ADD CONSTRAINT chk_customers_dob
 CHECK (
@@ -156,3 +158,8 @@ ON DELETE CASCADE;
 /*  ENABLE CHECK CONSTAINTS */
 SET foreign_key_checks = 1;
 
+/* Statistics */
+
+SELECT * FROM `jsguru-typeorm`.events WHERE id IN (SELECT DISTINCT(id) FROM `jsguru-typeorm`.events evt WHERE MONTH(evt.event_date) = 2);
+SELECT * FROM `jsguru-typeorm`.events WHERE id IN (SELECT DISTINCT(id) FROM `jsguru-typeorm`.events evt WHERE YEAR(evt.event_date) = 2022);
+SELECT MONTH(event_date) AS event_month, YEAR(event_date) as event_year, COUNT(id) as number_of_events FROM `jsguru-typeorm`.events GROUP BY event_month, event_year;
