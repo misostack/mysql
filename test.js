@@ -39,6 +39,20 @@ const insertQueryBatch = (c, table, objects) => {
   return `INSERT INTO ${table} (${keys}) VALUES ${values}`;
 };
 
+const randomUrl = (suffix) => {
+  return {
+    url: faker.internet.url(),
+  };
+};
+
+const randomUrls = (steps, offset) => {
+  const urls = [];
+  for (let i = 0; i < steps; i++) {
+    urls.push(randomUrl(offset + i + 1));
+  }
+  return urls;
+};
+
 const randomUser = (suffix) => {
   const userType = ["admin", "member"];
   const userStatus = ["pending", "active", "inactive"];
@@ -79,13 +93,35 @@ const executeQuery = (db, query) => {
     if (error) throw error;
     const N_USERS = 1e6; // 1 million records
     const STEPS = 100;
-    await executeQuery(db, "TRUNCATE phpguru_users;");
-    // insert
-    const createUsers = (...args) => {
+    //
+    // await executeQuery(db, "TRUNCATE phpguru_users;");
+    // const createUsers = (...args) => {
+    //   const offset = args[0];
+    //   const steps = args[1];
+    //   const users = randomUsers(steps, offset);
+    //   const query = insertQueryBatch(db, "phpguru_users", users);
+    //   executeQuery(db, query).then(
+    //     (res) => {
+    //       console.log(`${offset}/${N_USERS}`);
+    //       console.log(res);
+    //       if (offset < N_USERS - steps) {
+    //         eventEmitter.emit(EVT_CREATE_USERS, offset + steps, steps);
+    //       }
+    //     },
+    //     (error) => {
+    //       // stop
+    //       console.error(error);
+    //     }
+    //   );
+    // };
+    // eventEmitter.on(EVT_CREATE_USERS, createUsers);
+    // eventEmitter.emit(EVT_CREATE_USERS, 0, STEPS);
+    await executeQuery(db, "TRUNCATE shorturl_hash;");
+    const createUrls = (...args) => {
       const offset = args[0];
       const steps = args[1];
-      const users = randomUsers(steps, offset);
-      const query = insertQueryBatch(db, "phpguru_users", users);
+      const urls = randomUrls(steps, offset);
+      const query = insertQueryBatch(db, "shorturl_hash", urls);
       executeQuery(db, query).then(
         (res) => {
           console.log(`${offset}/${N_USERS}`);
@@ -100,9 +136,7 @@ const executeQuery = (db, query) => {
         }
       );
     };
-
-    eventEmitter.on(EVT_CREATE_USERS, createUsers);
-
+    eventEmitter.on(EVT_CREATE_USERS, createUrls);
     eventEmitter.emit(EVT_CREATE_USERS, 0, STEPS);
 
     // for (let i = 0; i < N_USERS; i += STEPS) {
